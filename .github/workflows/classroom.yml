@@ -1,0 +1,31 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: lab4 autograder
+      id: lab4-autograder
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: lab4 autograder
+        setup-command: sudo apt-get update >/dev/null 2>&1 && sudo apt-get install
+          -y qemu-system-i386 >/dev/null 2>&1 && pip3 install pwntools >/dev/null
+          2>&1 && wget https://ucr-cs153.github.io/lab4.py >/dev/null 2>&1
+        command: python3 lab4.py
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        LAB4-AUTOGRADER_RESULTS: "${{steps.lab4-autograder.outputs.result}}"
+      with:
+        runners: lab4-autograder
