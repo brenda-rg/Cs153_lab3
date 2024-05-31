@@ -39,6 +39,7 @@ int shm_open(int id, char **pointer) {
       *pointer = (void *) PGROUNDUP(myproc()->sz);
       myproc()->sz += PGSIZE;
       release(&(shm_table.lock));
+      return 0;
     }
   for (i = 0; i< 64; i++) {
       if(shm_table.shm_pages[i].id != 0)
@@ -46,13 +47,16 @@ int shm_open(int id, char **pointer) {
       shm_table.shm_pages[i].id = id;
       shm_table.shm_pages[i].frame = kalloc();
       shm_table.shm_pages[i].refcnt = 1;
-      cprintf("%d\n",myproc()->sz);
+      //cprintf("%d\n",myproc()->sz);
+      memset(shm_table.shm_pages[i].frame, 0, PGSIZE);
       mappages(myproc()->pgdir, (void *) PGROUNDUP(myproc()->sz), PGSIZE, V2P(shm_table.shm_pages[i].frame), PTE_W|PTE_U);
       *pointer = (void*) PGROUNDUP(myproc()->sz);
       myproc()->sz += PGSIZE;
       release(&(shm_table.lock));
+      return 0;
     }
 //you write this
+release(&(shm_table.lock));
 return 0; //added to remove compiler warning -- you should decide what to return
 }
 
