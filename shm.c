@@ -86,10 +86,12 @@ return 0; //added to remove compiler warning -- you should decide what to return
 int shm_close(int id) {
 //you write this too!
   int i;
-  //pte_t *pte;
+  pte_t *pte;
+  int found = 0;
   initlock(&(shm_table.lock), "SHM lock");
   acquire(&(shm_table.lock));
   for (i = 0; i< 64; i++) {
+    found = 1;
     if(shm_table.shm_pages[i].id == id) {
       shm_table.shm_pages[i].refcnt--;
       if(shm_table.shm_pages[i].refcnt > 0 ) {
@@ -98,17 +100,16 @@ int shm_close(int id) {
       }
       shm_table.shm_pages[i].frame = 0;
       shm_table.shm_pages[i].id = 0;
-      shm_table.shm_pages[i].refcnt = 0;
-      walkpgdir(myproc()->pgdir, (const void *) PGROUNDUP(myproc()->sz), 1);
-      //cprintf("%d\n",walkpgdir(myproc()->pgdir, (void *) PGROUNDUP(myproc()->sz), 1) );
-      //*pte = 0;
+      //shm_table.shm_pages[i].refcnt = 0;
+      pte = walkpgdir(myproc()->pgdir, (const void *) PGROUNDUP(myproc()->sz), 1);
+      *pte = 0;
       release(&(shm_table.lock));
       return 0;
     }
-    if(i == 64) {
-      release(&(shm_table.lock));
-      return 1; //no matched id found;
-    }
+  }
+  if(found == 0) {
+    release(&(shm_table.lock));
+    return 1; //no matched id found;
   }
 
   release(&(shm_table.lock));
