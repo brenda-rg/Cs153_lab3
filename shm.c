@@ -51,7 +51,6 @@ void shminit() {
 }
 
 int shm_open(int id, char **pointer) {
-return 0; //added to remove compiler warning -- you should decide what to return */
   int i;
   acquire(&(shm_table.lock));
   for (i = 0; i< 64; i++) {
