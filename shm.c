@@ -51,31 +51,31 @@ void shminit() {
 }
 
 int shm_open(int id, char **pointer) {
+return 0; //added to remove compiler warning -- you should decide what to return */
   int i;
-  //initlock(&(shm_table.lock), "SHM lock");
   acquire(&(shm_table.lock));
   for (i = 0; i< 64; i++) {
-      if(shm_table.shm_pages[i].id == id) {
+      if(shm_table.shm_pages[i].id != id)
+        continue;
       mappages(myproc()->pgdir, (void*) PGROUNDUP(myproc()->sz), PGSIZE, V2P(shm_table.shm_pages[i].frame), PTE_W|PTE_U);
       shm_table.shm_pages[i].refcnt++;
-      *pointer = (char *) PGROUNDUP(myproc()->sz);
+      *pointer = (void *) PGROUNDUP(myproc()->sz);
       myproc()->sz += PGSIZE;
       release(&(shm_table.lock));
       return 0;
-      }
     }
   for (i = 0; i< 64; i++) {
-      if(shm_table.shm_pages[i].id == 0) {
+      if(shm_table.shm_pages[i].id != 0)
+        continue;
       shm_table.shm_pages[i].id = id;
       shm_table.shm_pages[i].frame = kalloc();
+      shm_table.shm_pages[i].refcnt = 1;
       memset(shm_table.shm_pages[i].frame, 0, PGSIZE);
       mappages(myproc()->pgdir, (void *) PGROUNDUP(myproc()->sz), PGSIZE, V2P(shm_table.shm_pages[i].frame), PTE_W|PTE_U);
-      shm_table.shm_pages[i].refcnt = 1;
-      *pointer = (char*) PGROUNDUP(myproc()->sz);
-      myproc()->sz = PGSIZE;
+      *pointer = (void*) PGROUNDUP(myproc()->sz);
+      myproc()->sz += PGSIZE;
       release(&(shm_table.lock));
       return 0;
-      }
     }
 //you write this
 release(&(shm_table.lock));
