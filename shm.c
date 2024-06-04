@@ -85,7 +85,7 @@ return 0; //added to remove compiler warning -- you should decide what to return
 
 int shm_close(int id) {
 //you write this too!
-  int i;
+ /*  int i;
   pte_t *pte;
   int found = 0;
   initlock(&(shm_table.lock), "SHM lock");
@@ -112,6 +112,6 @@ int shm_close(int id) {
     return 1; //no matched id found;
   }
 
-  release(&(shm_table.lock));
+  release(&(shm_table.lock)); */
   return 0; //added to remove compiler warning -- you should decide what to return
 }
