@@ -100,7 +100,7 @@ int shm_close(int id) {
       shm_table.shm_pages[i].frame = 0;
       shm_table.shm_pages[i].id = 0;
       //shm_table.shm_pages[i].refcnt = 0;
-      pte = walkpgdir(myproc()->pgdir, (const void *) PGROUNDUP(myproc()->sz), 1);
+      pte = walkpgdir(myproc()->pgdir, (void *) PGROUNDUP(myproc()->sz), 1);
       *pte = 0;
       release(&(shm_table.lock));
       return 0;
